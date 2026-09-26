@@ -1,0 +1,57 @@
+#######DEPLOYMENT.YAML#########
+apiVersion: apps/v1
+kind: Deployment
+#The metadata section contains information aboout the deployment
+metadata:
+  name: devops-project
+  namespace: default          # <-- added
+  labels:
+    app: devops-project
+spec:
+   # set the number of replicas to 2
+  replicas: 2
+  selector:
+  # match pods with the label "app: devops-project"
+    matchLabels:
+      app: devops-project
+  template:
+     #pod spec
+    metadata:
+      labels:
+        app: devops-project
+
+        #container spec
+    spec:
+      containers:
+      - name: flask
+        image: francisaroh/devops-project:2026-09-26-115758
+
+        ports:
+        - containerPort: 5000
+
+
+
+
+---
+
+
+
+##########SERVICE.YAML#########
+#enables us to talk to our pod from outside the cluster
+apiVersion: v1
+kind: Service
+metadata:
+  name: devops-project-service
+  namespace: default          # <-- added
+  labels:
+    app: devops-project
+    release: prometheus
+spec:
+  selector:
+    app: devops-project
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80 #the port on which the service is exposed
+      targetPort: 5000 # the port on which the container is listening
+  type: ClusterIP
