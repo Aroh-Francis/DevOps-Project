@@ -36,14 +36,15 @@ jobs:
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/devops-project:${{ steps.tag.outputs.value }} .
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/devops-project:${{ steps.tag.outputs.value }}
 
-      - name: Update deployment.yaml and commit
+      - name: Update deployment manifest and commit
         run: |
-        #search for the line starting with "image:" and replace it with the new image name and tag
-          sed -i "s|image: .*|image: ${{ secrets.DOCKERHUB_USERNAME }}/devops-project:${{ steps.tag.outputs.value }}|" deployment.yaml  
-          #log into github and commit the changes to deployment.yaml
+          # Search for the line starting with "image:" and replace it with the new image tag
+          sed -i "s|image: .*|image: ${{ secrets.DOCKERHUB_USERNAME }}/devops-project:${{ steps.tag.outputs.value }}|" deployment.yml
+
+          # Log into GitHub and commit the manifest change
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          git add deployment.yaml
+          git add deployment.yml
           git commit -m "Deploy new image ${{ steps.tag.outputs.value }}"
           git push
 
