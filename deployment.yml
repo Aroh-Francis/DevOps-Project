@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
       - name: flask
-        image: francisaroh/devops-project:2026-09-26-115758
+        image: francisaroh/devops-project:2026-09-26-162944
 
         ports:
         - containerPort: 5000
