@@ -9,7 +9,7 @@ metadata:
     app: devops-project
 spec:
    # set the number of replicas to 2
-  replicas: 2
+  replicas: 3
   selector:
   # match pods with the label "app: devops-project"
     matchLabels:
