@@ -29,20 +29,27 @@ jobs:
         id: tag
         run: echo "value=$(date +'%Y-%m-%d-%H%M%S')" >> $GITHUB_OUTPUT
         # VERSION=2025-12-11-143025
-        # Image name: 
-     
+        # Image name:
+
       - name: Build and push Docker image
         run: |
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/devops-project:${{ steps.tag.outputs.value }} .
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/devops-project:${{ steps.tag.outputs.value }}
 
-      - name: Update deployment.yaml and commit
+      - name: Update deployment manifest and commit
         run: |
-        #search for the line starting with "image:" and replace it with the new image name and tag
-          sed -i "s|image: .*|image: ${{ secrets.DOCKERHUB_USERNAME }}/devops-project:${{ steps.tag.outputs.value }}|" deployment.yaml  
-          #log into github and commit the changes to deployment.yaml
+          # Search for the line starting with "image:" and replace it with the new image tag
+          sed -i "s|image: .*|image: ${{ secrets.DOCKERHUB_USERNAME }}/devops-project:${{ steps.tag.outputs.value }}|" deployment.yml
+
+          # Log into Git and commit the change if the manifest changed
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          git add deployment.yaml
-          git commit -m "Deploy new image ${{ steps.tag.outputs.value }}"
-          git push
+          git add deployment.yml
+
+          if git diff --cached --quiet; then
+            echo "No deployment changes to commit"
+          else
+            git commit -m "Deploy new image ${{ steps.tag.outputs.value }}"
+            git push
+          fi
+   
